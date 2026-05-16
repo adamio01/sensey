@@ -56,7 +56,7 @@ export default function Home() {
                 <span className="hero-cta-arrow">→</span>
               </a>
               <div className="hero-price">
-                от <strong>1 990 ₽</strong> · доступ навсегда
+                от <strong>2 990 ₽</strong> · доступ навсегда
               </div>
             </div>
           </div>
@@ -235,9 +235,9 @@ export default function Home() {
             <div className="price-tagline">Полный доступ. Навсегда.</div>
           </div>
           <div className="price-amount">
-            <div className="price-old">4 990 ₽</div>
+            <div className="price-old">6 990 ₽</div>
             <div className="price-now">
-              1 990<span className="price-now-currency">₽</span>
+              2 990<span className="price-now-currency">₽</span>
             </div>
             <div className="price-period">единоразово · доступ навсегда</div>
           </div>

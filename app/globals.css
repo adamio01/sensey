@@ -515,6 +515,104 @@ nav {
 .final-cta h2 .accent { color: var(--accent); font-style: italic; }
 .final-cta-sub { color: var(--text-dim); font-size: 18px; max-width: 600px; margin: 0 auto 40px; }
 
+/* ============ PAY MODAL ============ */
+.paymodal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+.paymodal {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 460px;
+  padding: 40px;
+  position: relative;
+  box-shadow: 0 0 80px rgba(197, 255, 0, 0.15);
+  animation: popIn 0.25s ease;
+}
+@keyframes popIn { from { transform: scale(0.96); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+.paymodal-close {
+  position: absolute; top: 14px; right: 18px;
+  background: transparent; border: none;
+  color: var(--text-dim);
+  font-size: 28px; cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.paymodal-close:hover { color: var(--accent); }
+.paymodal-eyebrow {
+  font-family: "JetBrains Mono", monospace;
+  color: var(--accent);
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.paymodal-title {
+  font-family: "Anton", sans-serif;
+  font-size: 36px; text-transform: uppercase; letter-spacing: 1px;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.paymodal-title .accent { color: var(--accent); }
+.paymodal-sub {
+  color: var(--text-dim); font-size: 14px; line-height: 1.5;
+  margin-bottom: 24px;
+}
+.paymodal-form { display: flex; flex-direction: column; gap: 12px; }
+.paymodal-input {
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 16px 18px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+.paymodal-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.paymodal-input::placeholder { color: var(--text-mute); }
+.paymodal-error {
+  background: rgba(255, 48, 48, 0.1);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+.paymodal-submit {
+  background: var(--accent); color: #000;
+  padding: 18px;
+  border-radius: 100px;
+  border: none;
+  font-weight: 800;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s;
+}
+.paymodal-submit:hover:not(:disabled) { background: #fff; transform: translateY(-2px); }
+.paymodal-submit:disabled { opacity: 0.6; cursor: wait; }
+.paymodal-foot {
+  text-align: center;
+  color: var(--text-mute);
+  font-size: 12px;
+  margin-top: 4px;
+  font-family: "JetBrains Mono", monospace;
+}
+
 /* ============ FOOTER ============ */
 footer {
   padding: 60px 5% 40px;

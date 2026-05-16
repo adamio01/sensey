@@ -1,6 +1,5 @@
 import Faq from "@/components/Faq";
-
-const PAY_URL = "https://pay.tbank.ru/cdnOrQCl";
+import Cta from "@/components/Cta";
 
 export default function Home() {
   return (
@@ -18,9 +17,7 @@ export default function Home() {
           <a href="#price">Цена</a>
           <a href="#faq">FAQ</a>
         </div>
-        <a href={PAY_URL} className="nav-cta" target="_blank" rel="noopener noreferrer">
-          Забрать
-        </a>
+        <Cta variant="nav" />
       </nav>
 
       {/* HERO */}
@@ -51,10 +48,7 @@ export default function Home() {
               ежедневная работа, которая делает мужчину мужчиной.
             </p>
             <div className="hero-cta-block">
-              <a href={PAY_URL} className="hero-cta" target="_blank" rel="noopener noreferrer">
-                Вступить
-                <span className="hero-cta-arrow">→</span>
-              </a>
+              <Cta variant="hero">Вступить</Cta>
               <div className="hero-price">
                 от <strong>2 990 ₽</strong> · доступ навсегда
               </div>
@@ -254,9 +248,7 @@ export default function Home() {
             </ul>
           </div>
           <div className="price-cta-wrap">
-            <a href={PAY_URL} className="price-cta" target="_blank" rel="noopener noreferrer">
-              Забрать доступ
-            </a>
+            <Cta variant="price" />
             <div className="price-guarantee">
               <strong>Гарантия 7 дней.</strong> Не понравится — вернём деньги.
             </div>
@@ -282,10 +274,7 @@ export default function Home() {
           <p className="final-cta-sub">
             Решение занимает минуту. Результат — на всю жизнь.
           </p>
-          <a href={PAY_URL} className="hero-cta" target="_blank" rel="noopener noreferrer">
-            Вступить
-            <span className="hero-cta-arrow">→</span>
-          </a>
+          <Cta variant="final">Вступить</Cta>
         </div>
       </section>
 

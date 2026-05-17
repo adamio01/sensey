@@ -1,0 +1,32 @@
+[build]
+  command = "npm run build"
+  publish = "out"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Routing: /api/* → Netlify Functions (через config.path внутри функций).
+# Доп. редирект не нужен, у каждой функции свой path.
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=(), payment=(self), interest-cohort=()"
+    Cross-Origin-Opener-Policy = "same-origin"
+    Content-Security-Policy = """\
+default-src 'self'; \
+script-src 'self' https://challenges.cloudflare.com; \
+style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; \
+font-src 'self' https://fonts.gstatic.com data:; \
+img-src 'self' data: blob:; \
+connect-src 'self' https://api.resend.com; \
+frame-src https://challenges.cloudflare.com; \
+form-action 'self' https://securepay.tinkoff.ru https://pay.tbank.ru; \
+frame-ancestors 'none'; \
+base-uri 'self'; \
+object-src 'none'\
+"""

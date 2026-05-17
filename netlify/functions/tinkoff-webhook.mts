@@ -1,0 +1,128 @@
+/**
+ * POST /api/tinkoff-webhook — нотификация Tinkoff об оплате.
+ * После проверки подписи отправляем письмо клиенту через Resend.
+ *
+ * Env vars: TINKOFF_PASSWORD, RESEND_API_KEY, FROM_EMAIL, COURSE_ACCESS_URL, OWNER_EMAIL?
+ */
+import type { Context } from "@netlify/functions";
+
+type Notif = Record<string, unknown>;
+
+async function sha256Hex(input: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function expectedToken(notif: Notif, password: string): Promise<string> {
+  const flat: Record<string, string> = {};
+  for (const [k, v] of Object.entries(notif)) {
+    if (k === "Token") continue;
+    if (v === null || typeof v === "object") continue;
+    flat[k] = typeof v === "boolean" ? (v ? "true" : "false") : String(v);
+  }
+  flat.Password = password;
+  return sha256Hex(Object.keys(flat).sort().map((k) => flat[k]).join(""));
+}
+
+function extractEmail(notif: Notif): string | null {
+  const direct = (notif.Email ?? notif.email) as unknown;
+  if (typeof direct === "string" && direct.includes("@")) return direct;
+  const data = notif.DATA as Record<string, unknown> | undefined;
+  if (data) {
+    const e = data.Email ?? data.email;
+    if (typeof e === "string" && e.includes("@")) return e;
+  }
+  const receipt = notif.Receipt as Record<string, unknown> | undefined;
+  if (receipt) {
+    const e = receipt.Email;
+    if (typeof e === "string" && e.includes("@")) return e;
+  }
+  return null;
+}
+
+async function sendEmail(to: string, subject: string, html: string): Promise<Response> {
+  const env = process.env;
+  return fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ from: env.FROM_EMAIL, to, subject, html }),
+  });
+}
+
+function clientHtml(amountRub: number): string {
+  const url = process.env.COURSE_ACCESS_URL ?? "#";
+  return `
+    <div style="font-family:Arial,sans-serif;color:#111;max-width:560px;margin:0 auto">
+      <h2 style="font-size:22px;letter-spacing:1px;text-transform:uppercase">SENSEY — Добро пожаловать в школу</h2>
+      <p>Оплата прошла успешно. Сумма: <b>${amountRub.toLocaleString("ru-RU")} ₽</b>.</p>
+      <p>Доступ к материалам школы открыт по ссылке ниже:</p>
+      <p style="margin:24px 0">
+        <a href="${url}" style="background:#c5ff00;color:#000;padding:14px 24px;border-radius:100px;text-decoration:none;font-weight:bold;letter-spacing:1px;text-transform:uppercase">Войти в школу</a>
+      </p>
+      <p>Если ссылка не открывается — скопируй её в браузер:<br><a href="${url}">${url}</a></p>
+      <p style="margin-top:32px;color:#666;font-size:13px">Сила. Удар. Дисциплина.<br>SENSEY</p>
+    </div>
+  `;
+}
+
+function ownerHtml(notif: Notif, email: string | null): string {
+  const rows = Object.entries(notif)
+    .filter(([k]) => k !== "Token")
+    .map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#666">${k}</td><td>${typeof v === "object" ? JSON.stringify(v) : String(v)}</td></tr>`)
+    .join("");
+  return `<div style="font-family:Arial,sans-serif;color:#111"><h3>Новая оплата — SENSEY</h3><p>Email клиента: <b>${email ?? "не передан"}</b></p><table style="border-collapse:collapse">${rows}</table></div>`;
+}
+
+export default async (req: Request, _ctx: Context) => {
+  if (req.method === "GET") return new Response("Tinkoff webhook is alive. POST only.", { status: 200 });
+  if (req.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
+
+  let notif: Notif;
+  try {
+    const ct = req.headers.get("content-type") ?? "";
+    if (ct.includes("application/json")) {
+      notif = await req.json() as Notif;
+    } else {
+      const form = await req.formData();
+      notif = Object.fromEntries(form.entries());
+    }
+  } catch {
+    return new Response("Bad request", { status: 400 });
+  }
+
+  const env = process.env;
+  const got = String(notif.Token ?? "").toLowerCase();
+  const want = (await expectedToken(notif, env.TINKOFF_PASSWORD ?? "")).toLowerCase();
+  if (!got || got !== want) {
+    console.error("Tinkoff webhook: bad token");
+    return new Response("Bad token", { status: 401 });
+  }
+
+  const status = String(notif.Status ?? "");
+  const success = notif.Success === true || notif.Success === "true";
+  if (status !== "CONFIRMED" || !success) return new Response("OK");
+
+  const amount = Number(notif.Amount ?? 0) / 100;
+  const clientEmail = extractEmail(notif);
+
+  try {
+    if (clientEmail) {
+      const r = await sendEmail(clientEmail, "SENSEY — доступ к школе", clientHtml(amount));
+      if (!r.ok) console.error("Resend client error:", await r.text());
+    } else {
+      console.warn("Client email not provided");
+    }
+    if (env.OWNER_EMAIL) {
+      await sendEmail(env.OWNER_EMAIL, `SENSEY: оплата ${amount} ₽${clientEmail ? ` — ${clientEmail}` : ""}`, ownerHtml(notif, clientEmail));
+    }
+  } catch (e) {
+    console.error("Email send failed:", e);
+  }
+
+  return new Response("OK");
+};
+
+export const config = { path: "/api/tinkoff-webhook" };

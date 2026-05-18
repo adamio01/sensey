@@ -53,19 +53,58 @@ async function sendEmail(to: string, subject: string, html: string): Promise<Res
 }
 
 function clientHtml(amountRub: number): string {
-  const url = process.env.COURSE_ACCESS_URL ?? "#";
-  return `
-    <div style="font-family:Arial,sans-serif;color:#111;max-width:560px;margin:0 auto">
-      <h2 style="font-size:22px;letter-spacing:1px;text-transform:uppercase">SENSEY — Добро пожаловать в школу</h2>
-      <p>Оплата прошла успешно. Сумма: <b>${amountRub.toLocaleString("ru-RU")} ₽</b>.</p>
-      <p>Доступ к материалам школы открыт по ссылке ниже:</p>
-      <p style="margin:24px 0">
-        <a href="${url}" style="background:#c5ff00;color:#000;padding:14px 24px;border-radius:100px;text-decoration:none;font-weight:bold;letter-spacing:1px;text-transform:uppercase">Войти в школу</a>
+  const tgUrl = process.env.COURSE_ACCESS_URL ?? "#";
+  return `<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><title>SENSEY</title></head>
+<body style="margin:0;padding:40px 20px;background:#0a0a0a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#f5f5f5">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:560px;margin:0 auto">
+    <tr><td style="padding:32px 28px;background:#141414;border-radius:16px;border:1px solid #262626">
+
+      <div style="font-size:11px;letter-spacing:3px;color:#c5ff00;font-weight:700;text-transform:uppercase;margin-bottom:8px">// школа мужчины</div>
+      <h1 style="font-size:32px;letter-spacing:1px;text-transform:uppercase;margin:0 0 24px;line-height:1;font-weight:900">Добро пожаловать,<br>в <span style="color:#c5ff00">SENSEY</span></h1>
+
+      <p style="font-size:16px;line-height:1.6;color:#d4d4d4;margin:0 0 16px">
+        Оплата прошла. Ты в школе.
       </p>
-      <p>Если ссылка не открывается — скопируй её в браузер:<br><a href="${url}">${url}</a></p>
-      <p style="margin-top:32px;color:#666;font-size:13px">Сила. Удар. Дисциплина.<br>SENSEY</p>
-    </div>
-  `;
+
+      <p style="font-size:15px;line-height:1.6;color:#a0a0a0;margin:0 0 28px">
+        Сумма: <b style="color:#f5f5f5">${amountRub.toLocaleString("ru-RU")} ₽</b><br>
+        Доступ — навсегда.
+      </p>
+
+      <div style="background:#0a0a0a;border:1px solid #262626;border-radius:12px;padding:24px;margin:0 0 28px">
+        <div style="font-size:11px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:12px;font-weight:600">// шаг 1 из 1</div>
+        <h3 style="font-size:18px;margin:0 0 12px;color:#f5f5f5;text-transform:uppercase;letter-spacing:0.5px">Вступай в закрытый канал</h3>
+        <p style="font-size:14px;line-height:1.6;color:#a0a0a0;margin:0 0 20px">
+          Все материалы, тренировки, кодекс и связь со мной — в Telegram-канале школы. Жми ниже:
+        </p>
+        <a href="${tgUrl}" style="display:inline-block;background:#c5ff00;color:#000;padding:14px 28px;border-radius:100px;text-decoration:none;font-weight:800;font-size:14px;letter-spacing:2px;text-transform:uppercase">Войти в канал →</a>
+        <p style="font-size:12px;color:#666;margin:16px 0 0;line-height:1.5">
+          Если кнопка не открывается — скопируй ссылку:<br>
+          <a href="${tgUrl}" style="color:#c5ff00;word-break:break-all">${tgUrl}</a>
+        </p>
+      </div>
+
+      <p style="font-size:14px;line-height:1.6;color:#a0a0a0;margin:0 0 16px">
+        Начни с первого видео — это твой первый день. Дальше — каждый день по уроку.
+      </p>
+
+      <p style="font-size:14px;line-height:1.6;color:#a0a0a0;margin:0 0 28px">
+        Если возник вопрос — пиши прямо в канал.
+      </p>
+
+      <hr style="border:none;border-top:1px solid #262626;margin:28px 0">
+
+      <p style="font-size:12px;color:#666;letter-spacing:2px;text-transform:uppercase;margin:0;font-weight:600">
+        Сила · Удар · Дисциплина
+      </p>
+      <p style="font-size:11px;color:#444;margin:8px 0 0">
+        SENSEY — школа мужчины · arabovsensey.ru
+      </p>
+
+    </td></tr>
+  </table>
+</body></html>`;
 }
 
 function ownerHtml(notif: Notif, email: string | null): string {

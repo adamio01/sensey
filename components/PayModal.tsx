@@ -100,9 +100,6 @@ export default function PayModal({
           <button type="submit" className="paymodal-submit" disabled={status === "loading"}>
             {status === "loading" ? "Перевод на оплату..." : "Перейти к оплате →"}
           </button>
-          <div className="paymodal-foot">
-            Оплата через Тинькофф · возврат 7 дней
-          </div>
         </form>
       </div>
     </div>
